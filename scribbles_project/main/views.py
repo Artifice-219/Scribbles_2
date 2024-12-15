@@ -1,10 +1,8 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import UserForm
+from django.contrib.auth import authenticate, login
+from .forms import UserForm, LetterForm, login_form
 from .models import Letter
-from .forms import LetterForm
 
 # Create your views here.
 from django.http import HttpResponse
@@ -15,7 +13,24 @@ def index(request):
 
 # for the login page
 def loginpage(request):
-    return render(request,'loginpage.html')
+    form = login_form()
+    if request.method == 'POST':
+        form = login_form(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            print(f"Authenticated User: {user}")  
+            if user is not None:
+                login(request, user)
+                return redirect('user-dashboard')
+            else:
+                form.add_error(None, 'Invalid Username or Password')
+        else:
+            print(f"Form Errors: {form.errors}") 
+
+    return render(request, 'loginpage.html', {'form': form})
+
 
 
 def signup(request):
