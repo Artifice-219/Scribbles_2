@@ -17,17 +17,18 @@ def index(request):
 def loginpage(request):
     return render(request,'loginpage.html')
 
-# for the signup page
+
 def signup(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            form.save()  
-            return redirect('success')  
+            form.save()  # Saves the user with the hashed password
+            return redirect('success')  # Redirect to a success page
     else:
-        form = UserForm() 
+        form = UserForm()
 
-    return render(request,'signup.html', {'form' : form} )
+    return render(request, 'signup.html', {'form': form})
+
 
 # for the dashboard
 def user_dashboard(request):

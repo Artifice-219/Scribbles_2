@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,11 +31,12 @@
 
     <!-- Logo -->
     <div class="hidden dark:block absolute mt-10 left-1/2 text-white pl-56 ml-39">
-      <img src="/scribbles/src/images/speechbubble-light-mode.png" alt="Secret Scribbles Logo">
+      <img src="{% static 'src/images/speechbubble-light-mode'}" alt="Secret Scribbles Logo">
+      <!-- <img src="/scribbles/src/images/speechbubble-light-mode.png" alt="Secret Scribbles Logo"> -->
     </div>
 
     <div class="block dark:hidden absolute mt-10 left-1/2 text-white pl-56 ml-39">
-      <img src="/scribbles/src/images/speechbubble-dark-mode.png" alt="Secret Scribbles Logo">
+      <img src="{%static '/src/images/speechbubble-dark-mode.png}" alt="Secret Scribbles Logo">
     </div>
 
     <!-- Content Section -->
@@ -42,10 +44,16 @@
       <h1 class="mt-40 text-3xl font-bold" style="font-family: Poppins;">Share Your Secrets Anonymously</h1>
       <p class="text-center text-lg w-3/4" style="font-family: Poppins;">A space where thoughts, confessions, and stories come alive through words. Read, respond, and reflect.</p>
       <div class="flex flex-col space-y-3">
+<<<<<<< HEAD
         <a href="/scribbles_project/template/login.html">
         <button class="dark:bg-gray-950 dark:rounded-tr-xl dark:rounded-bl-xl dark:rounded-none rounded-tl-xl rounded-br-xl bg-blue-500 text-white py-2 px-4 hover:bg-gradient-to-r from-purple-400 to-blue-500 font-bold ease-in duration-100" style="font-family: Poppins;">
+=======
+        <a href="loginpage.html">
+         <button class="dark:bg-gray-950 dark:rounded-tr-xl dark:rounded-bl-xl dark:rounded-none rounded-tl-xl rounded-br-xl bg-blue-500 text-white py-2 px-4 hover:bg-gradient-to-r from-purple-400 to-blue-500 font-bold ease-in duration-100" style="font-family: Poppins;">
+>>>>>>> 370a1e9bd49380b9b985aa03c952ec430e0173ed
           Get Started
-        </button></a>
+         </button>
+        </a>
       </div>
     </div>
   </div>
