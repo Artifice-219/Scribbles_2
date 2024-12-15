@@ -1,99 +1,123 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secret Scribbles</title>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=dark_mode" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=dark_mode"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
+  </head>
 
-<body class="h-screen flex flex-col transition-colors duration-400 ease-in-out">
+  <body
+    class="h-screen flex flex-col transition-colors duration-400 ease-in-out"
+  >
+    <div class="main flex flex-1">
+      <!-- Left Section -->
+      <div
+        class="flex-1 bg-cover bg-center text-white flex items-center transition-all duration-500 ease-in-out dark:bg-cover dark:bg-center bg-[url('/scribbles/src/images/SS_dark.png')] dark:bg-[url('/scribbles/src/images/SS.png')]"
+      ></div>
 
-  <div class="main flex flex-1">
-    <!-- Left Section -->
-    <div class="flex-1 bg-cover bg-center text-white flex items-center 
-      transition-all duration-500 ease-in-out
-      dark:bg-cover dark:bg-center 
-      bg-[url('/scribbles/src/images/SS_dark.png')] dark:bg-[url('/scribbles/src/images/SS.png')]">
-    </div>
+      <!-- Right Section -->
+      <div class="absolute top-4 right-4">
+        <button
+          onclick="toggleDarkMode()"
+          class="text-sm font-medium bg-white text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 transition duration-600 ease-in-out"
+        >
+          <span class="material-symbols-outlined text-4xl">dark_mode</span>
+        </button>
+      </div>
 
-    <!-- Right Section -->
-    <div class="absolute top-4 right-4">
-      <button 
-        onclick="toggleDarkMode()"
-        class="text-sm font-medium bg-white text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-gray-200 dark:bg-gray-800   dark:text-white dark:hover:bg-gray-700 transition duration-600 ease-in-out">
-        <span class="material-symbols-outlined text-4xl">dark_mode</span>
-      </button>
-    </div>
+      <!-- Logo -->
+      <div
+        class="hidden dark:block absolute mt-10 left-1/2 text-white pl-56 ml-39"
+      >
+        <img
+          src="{% static 'src/images/speechbubble-light-mode'}"
+          alt="Secret Scribbles Logo"
+        />
+        <!-- <img src="/scribbles/src/images/speechbubble-light-mode.png" alt="Secret Scribbles Logo"> -->
+      </div>
 
-    <!-- Logo -->
-    <div class="hidden dark:block absolute mt-10 left-1/2 text-white pl-56 ml-39">
-      <img src="{% static 'src/images/speechbubble-light-mode'}" alt="Secret Scribbles Logo">
-      <!-- <img src="/scribbles/src/images/speechbubble-light-mode.png" alt="Secret Scribbles Logo"> -->
-    </div>
+      <div
+        class="block dark:hidden absolute mt-10 left-1/2 text-white pl-56 ml-39"
+      >
+        <img
+          src="{%static '/src/images/speechbubble-dark-mode.png}"
+          alt="Secret Scribbles Logo"
+        />
+      </div>
 
-    <div class="block dark:hidden absolute mt-10 left-1/2 text-white pl-56 ml-39">
-      <img src="{%static '/src/images/speechbubble-dark-mode.png}" alt="Secret Scribbles Logo">
-    </div>
-
-    <!-- Content Section -->
-    <div class="dark:bg-white dark:text-black flex-1 bg-gray-950  text-white flex flex-col items-center justify-center space-y-6 transition-all duration-500 ease-in-out">
-      <h1 class="mt-40 text-3xl font-bold" style="font-family: Poppins;">Share Your Secrets Anonymously</h1>
-      <p class="text-center text-lg w-3/4" style="font-family: Poppins;">A space where thoughts, confessions, and stories come alive through words. Read, respond, and reflect.</p>
-      <div class="flex flex-col space-y-3">
-        <a href="loginpage.html">
-         <button class="dark:bg-gray-950 dark:rounded-tr-xl dark:rounded-bl-xl dark:rounded-none rounded-tl-xl rounded-br-xl bg-blue-500 text-white py-2 px-4 hover:bg-gradient-to-r from-purple-400 to-blue-500 font-bold ease-in duration-100" style="font-family: Poppins;">
-          Get Started
-         </button>
-        </a>
+      <!-- Content Section -->
+      <div
+        class="dark:bg-white dark:text-black flex-1 bg-gray-950 text-white flex flex-col items-center justify-center space-y-6 transition-all duration-500 ease-in-out"
+      >
+        <h1 class="mt-40 text-3xl font-bold" style="font-family: Poppins">
+          Share Your Secrets Anonymously
+        </h1>
+        <p class="text-center text-lg w-3/4" style="font-family: Poppins">
+          A space where thoughts, confessions, and stories come alive through
+          words. Read, respond, and reflect.
+        </p>
+        <div class="flex flex-col space-y-3">
+          <a href="loginpage.html">
+            <button
+              class="dark:bg-gray-950 dark:rounded-tr-xl dark:rounded-bl-xl dark:rounded-none rounded-tl-xl rounded-br-xl bg-blue-500 text-white py-2 px-4 hover:bg-gradient-to-r from-purple-400 to-blue-500 font-bold ease-in duration-100"
+              style="font-family: Poppins"
+            >
+              Get Started
+            </button>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <footer>
-    <section class="bg-gray-950 dark:text-white text-white py-4 dark:bg-gradient-to-r from-purple-400 via-blue-500 to-white " style="font-family: Poppins; font-weight:400">
-      <div class="flex gap-16 justify-center">
-        <h1 class="text-lg">About</h1>
-        <h1 class="text-lg">Terms and Conditions</h1>
-        <h1 class="text-lg">Privacy Policy</h1>
-        <h1 class="text-lg">FAQs</h1>
-        <h1 class="text-lg">Report a Problem </h1>
+    <footer>
+      <section
+        class="bg-gray-950 dark:text-white text-white py-4 dark:bg-gradient-to-r from-purple-400 via-blue-500 to-white"
+        style="font-family: Poppins; font-weight: 400"
+      >
+        <div class="flex gap-16 justify-center">
+          <h1 class="text-lg">About</h1>
+          <h1 class="text-lg">Terms and Conditions</h1>
+          <h1 class="text-lg">Privacy Policy</h1>
+          <h1 class="text-lg">FAQs</h1>
+          <h1 class="text-lg">Report a Problem</h1>
+        </div>
+      </section>
+
+      <div
+        class="dark:text-black dark:bg-white dark:font-medium bg-gray-950 text-white justify-center block flex pt-1 pb-1"
+        style="font-family: Poppins; font-weight: 500"
+      >
+        <h1>&copy; Secret Scribbles. All rights reserved.</h1>
       </div>
-    </section>
+    </footer>
+  </body>
 
-    <div class="dark:text-black dark:bg-white dark:font-medium bg-gray-950 text-white justify-center block flex pt-1 pb-1" style="font-family: Poppins; font-weight: 500;">
-      <h1>&copy; Secret Scribbles. All rights reserved.</h1>
-    </div>
-  </footer>
-</body>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+    };
 
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-  };
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
 
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-
-    if (document.body.classList.contains('dark')) {
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      localStorage.setItem('darkMode', 'disabled');
-    }
-    
-    
-
-  }
-
-
-  window.onload = function() {
-    if (localStorage.getItem('darkMode') === 'enabled') {
-      document.body.classList.add('dark');
-    }
+      if (document.body.classList.contains("dark")) {
+        localStorage.setItem("darkMode", "enabled");
+      } else {
+        localStorage.setItem("darkMode", "disabled");
+      }
     }
 
-</script>
+    window.onload = function () {
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark");
+      }
+    };
+  </script>
 </html>
