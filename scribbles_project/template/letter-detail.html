@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret Scribbles - Letter Detail</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header Section -->
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-900">Secret Scribbles</h1>
+      <nav class="space-x-6">
+        <a href="index.html" class="text-gray-600 hover:text-gray-900 transition">Home</a>
+        <a href="index.html#letters" class="text-gray-600 hover:text-gray-900 transition">Letters</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Letter Detail Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-6">
+      <div class="bg-white p-6 rounded-md shadow-lg">
+        <h3 class="text-xl font-semibold text-gray-900">Letter Title</h3>
+        <p class="text-gray-600 mt-2">Recipient: Anonymous</p>
+        <p class="text-gray-800 mt-4">Dear Stranger, I just wanted to tell you how much I appreciate your support...</p>
+
+        <!-- Responses Section -->
+        <div class="mt-8">
+          <h4 class="text-lg font-semibold text-gray-900">Responses</h4>
+          <div class="space-y-4 mt-4">
+            <!-- Response Preview -->
+            <div class="p-4 bg-gray-100 rounded-md shadow-sm">
+              <p class="text-gray-800">Thank you for sharing your thoughts. I understand how you feel...</p>
+            </div>
+            <!-- More responses will appear here -->
+          </div>
+          <form class="mt-6 bg-white p-6 rounded-md shadow-lg">
+            <textarea class="p-3 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600" rows="4" placeholder="Write a response"></textarea>
+            <button type="submit" class="mt-4 w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 transition">Post Response</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="bg-white border-t py-6">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-gray-600">&copy; 2024 Secret Scribbles. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>
