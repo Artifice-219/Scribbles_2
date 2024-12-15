@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 # Create your models here.
-from django.db import models
+
+from django.contrib.auth.hashers import make_password
 
 class User(models.Model):
     username = models.CharField(max_length=100)
@@ -12,6 +13,13 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
+
+    def set_password(self, raw_password):
+        """
+        Hashes the raw password and stores it in the password field.
+        """
+        self.password = make_password(raw_password)
+
     
     
 # JESS STRUCTURE.
