@@ -14,7 +14,7 @@
       <span class="text-2xl font-bold">✍️ Secret Scribbles</span>
     </div>
     <div class="flex items-center space-x-2">
-      <span class="text-2xl font-bold">Hi, Meong</span>
+      <span class="text-2xl font-bold">Hi, {{ dashboard_data.user_profile.username }}</span>
       <span class="text-3xl">👤</span>
     </div>
   </header>
@@ -48,6 +48,18 @@
         <h2 class="text-3xl font-bold mb-6">Anonymous Letters</h2>
         <div id="lettersContainer" class="space-y-4">
           <!-- Letters dynamically inserted here -->
+          {% if letters %}
+          {% for letter in letters %}
+              <div class="bg-gray-700 p-4 rounded-lg">
+                  <h3 class="text-lg font-bold text-white">{{ letter.title }}</h3>
+                  <p class="text-gray-400">To: {{ letter.recipient }}</p>
+                  <p class="text-gray-300 mt-2">{{ letter.content }}</p>
+                  <small class="text-gray-500">Created on {{ letter.created_at|date:"F j, Y" }}</small>
+              </div>
+          {% endfor %}
+      {% else %}
+          <p>No letters available.</p>
+      {% endif %}
         </div>
       </section>
     </main>
@@ -77,27 +89,32 @@
   <div id="writeLetterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-full">
       <h2 class="text-2xl font-bold mb-4" id="modalTitle">Write a Letter</h2>
-      <form id="letterForm" onsubmit="submitLetter(event)">
-        <input type="hidden" id="editingIndex" value="">
-        <div class="mb-4">
-          <label class="block mb-2">Title</label>
-          <input type="text" id="letterTitle" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" required>
-        </div>
-        <div class="mb-4">
-          <label class="block mb-2">Recipient</label>
-          <input type="text" id="letterRecipient" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" required>
-        </div>
-        <div class="mb-4">
-          <label class="block mb-2">Content</label>
-          <textarea id="letterContent" rows="4" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" required></textarea>
-        </div>
-        <div class="flex gap-2">
-          <button type="button" onclick="closeWriteLetterModal()" class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
-          <div class="ml-auto">
-            <button type="submit" class="bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">Save</button>
+
+      <!-- <form id="letterForm" method="POST" action="{% url 'letter_create' %}" <-- onsubmit="submitLetter(event)"> -->
+        <form id="letterForm" method="POST" action="{% url 'letter_create' %}">
+          {% csrf_token %}
+          {{ form.as_p }} 
+          <input type="hidden" id="editingIndex" value="">
+          <div class="mb-4">
+            <label class="block mb-2">Title</label>
+            <input type="text" name="title" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" value="{{ form.title.value }}" required>
           </div>
-        </div>
+          <div class="mb-4">
+            <label class="block mb-2">Recipient</label>
+            <input type="text" name="recipient" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" value="{{ form.recipient.value }}" required>
+          </div>
+          <div class="mb-4">
+            <label class="block mb-2">Content</label>
+            <textarea name="content" rows="4" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" required>{{ form.content.value }}</textarea>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeWriteLetterModal()" class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
+            <div class="ml-auto">
+              <button type="submit" class="bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">Save</button>
+            </div>
+          </div>
       </form>
+      
     </div>
   </div>
   
@@ -147,139 +164,142 @@
     </div>
 
     
-  <script>
-    const letters = [];
-    const comments = {};
-
-    function closeCommentsModal() {
-      const modal = document.getElementById("commentsModal");
-      modal.classList.add("hidden");
-    }
-    
-    function openCommentsModal(letterTitle) {
-      const modal = document.getElementById('commentsModal');
-      modal.classList.remove('hidden');
-      const container = document.getElementById('commentsContainer');
-      const existingComment = comments[letterTitle] ? comments[letterTitle][0] : "No Comment";
-    
-      container.innerHTML = `
-        <div class="bg-gray-700 p-4 rounded text-white">${existingComment}</div>
-      `;
-      modal.dataset.title = letterTitle;
-    }
-    
-    function openReplyModal(letterTitle) {
-      const replyModal = document.getElementById('replyModal');
-      replyModal.classList.remove('hidden');
-      const replyTextarea = document.getElementById('replyContent');
-      replyTextarea.value = "";
-      replyModal.dataset.title = letterTitle;
-    }
-    
-    function submitReply() {
-      const replyContent = document.getElementById('replyContent').value.trim();
-      const modal = document.getElementById('replyModal');
-      const letterTitle = modal.dataset.title;
-    
-      if (replyContent) {
-        if (!comments[letterTitle]) comments[letterTitle] = [];
-        comments[letterTitle].push(replyContent);
-        closeReplyModal();
-        openCommentsModal(letterTitle);
+    <script>
+      const letters = [];
+      const comments = {};
+  
+      function closeCommentsModal() {
+        const modal = document.getElementById("commentsModal");
+        modal.classList.add("hidden");
       }
-    }
-    
-    function closeReplyModal() {
-      document.getElementById('replyModal').classList.add('hidden');
-    }    
-    function openWriteLetterModal(index = null) {
-      document.getElementById("writeLetterModal").classList.remove("hidden");
-      if (index !== null) {
-        const letter = letters[index];
-        document.getElementById("modalTitle").innerText = "Edit Letter";
-        document.getElementById("letterTitle").value = letter.title;
-        document.getElementById("letterRecipient").value = letter.recipient;
-        document.getElementById("letterContent").value = letter.content;
-        document.getElementById("editingIndex").value = index;
-      } else {
-        document.getElementById("modalTitle").innerText = "Write a Letter";
-        document.getElementById("letterForm").reset();
-        document.getElementById("editingIndex").value = "";
+  
+      function openCommentsModal(letterTitle) {
+        const modal = document.getElementById('commentsModal');
+        modal.classList.remove('hidden');
+        const container = document.getElementById('commentsContainer');
+        const existingComment = comments[letterTitle] ? comments[letterTitle][0] : "No Comment";
+  
+        container.innerHTML = `
+          <div class="bg-gray-700 p-4 rounded text-white">${existingComment}</div>
+        `;
+        modal.dataset.title = letterTitle;
       }
-    }
-
-    function closeWriteLetterModal() {
-      document.getElementById("writeLetterModal").classList.add("hidden");
-    }
-
-    function submitLetter(event) {
-      event.preventDefault();
-      const title = document.getElementById("letterTitle").value;
-      const recipient = document.getElementById("letterRecipient").value;
-      const content = document.getElementById("letterContent").value;
-      const index = document.getElementById("editingIndex").value;
-
-      if (index) {
-        letters[index] = { title, recipient, content };
-      } else {
-        letters.push({ title, recipient, content });
+  
+      function openReplyModal(letterTitle) {
+        const replyModal = document.getElementById('replyModal');
+        replyModal.classList.remove('hidden');
+        const replyTextarea = document.getElementById('replyContent');
+        replyTextarea.value = "";
+        replyModal.dataset.title = letterTitle;
       }
-      renderLetters();
-      closeWriteLetterModal();
-    }
-
-    function renderLetters() {
-      const container = document.getElementById("lettersContainer");
-      container.innerHTML = letters.map((letter, index) => `
-        <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-bold text-white">${letter.title}</h3>
-          <p class="text-gray-400">To: ${letter.recipient}</p>
-          <p class="text-gray-300 mt-2">${letter.content}</p>
-          <div class="flex justify-end space-x-2 mt-4">
-          <button onclick="openCommentsModal('${letter.title}')" class="hover:text-blue-400">💬 Comment</button>
-          <button onclick="openReplyModal('${letter.title}')" class="hover:text-green-400">🔁 Reply</button>
-          <button onclick="openWriteLetterModal(${index})" class="hover:text-blue-400">✏️ Edit</button>
-          <button onclick="openDeleteModal(${index})" class="hover:text-red-400">🗑️ Delete</button>
+  
+      function submitReply() {
+        const replyContent = document.getElementById('replyContent').value.trim();
+        const modal = document.getElementById('replyModal');
+        const letterTitle = modal.dataset.title;
+  
+        if (replyContent) {
+          if (!comments[letterTitle]) comments[letterTitle] = [];
+          comments[letterTitle].push(replyContent);
+          closeReplyModal();
+          openCommentsModal(letterTitle);
+        }
+      }
+  
+      function closeReplyModal() {
+        document.getElementById('replyModal').classList.add('hidden');
+      }
+  
+      function openWriteLetterModal(index = null) {
+        document.getElementById("writeLetterModal").classList.remove("hidden");
+        if (index !== null) {
+          const letter = letters[index];
+          document.getElementById("modalTitle").innerText = "Edit Letter";
+          document.getElementById("letterTitle").value = letter.title;
+          document.getElementById("letterRecipient").value = letter.recipient;
+          document.getElementById("letterContent").value = letter.content;
+          document.getElementById("editingIndex").value = index;
+        } else {
+          document.getElementById("modalTitle").innerText = "Write a Letter";
+          document.getElementById("letterForm").reset();
+          document.getElementById("editingIndex").value = "";
+        }
+      }
+  
+      function closeWriteLetterModal() {
+        document.getElementById("writeLetterModal").classList.add("hidden");
+      }
+  
+      function submitLetter(event) {
+        // event.preventDefault();
+        const title = document.getElementById("letterTitle").value;
+        const recipient = document.getElementById("letterRecipient").value;
+        const content = document.getElementById("letterContent").value;
+        const index = document.getElementById("editingIndex").value;
+  
+        if (index) {
+          letters[index] = { title, recipient, content };
+        } else {
+          letters.push({ title, recipient, content });
+        }
+  
+        renderLetters();  // Ensure letters are rendered after submission
+        closeWriteLetterModal();
+      }
+  
+      function renderLetters(letters) {
+        const container = document.getElementById("lettersContainer");
+        container.innerHTML = filteredLetters.map((letters, index) => `
+          <div class="bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-bold text-white">${letters.title}</h3>
+            <p class="text-gray-400">To: ${letters.recipient}</p>
+            <p class="text-gray-300 mt-2">${letters.content}</p>
+            <div class="flex justify-end space-x-2 mt-4">
+            <button onclick="openCommentsModal('${letters.title}')" class="hover:text-blue-400">💬 Comment</button>
+            <button onclick="openReplyModal('${letters.title}')" class="hover:text-green-400">🔁 Reply</button>
+            <button onclick="openWriteLetterModal(${index})" class="hover:text-blue-400">✏️ Edit</button>
+            <button onclick="openDeleteModal(${index})" class="hover:text-red-400">🗑️ Delete</button>
+            </div>
           </div>
-        </div>
-      `).join('');
-    }
-
-    function deleteLetter(index) {
-      letters.splice(index, 1);
-      renderLetters();
-    }
-
-    function searchLetters() {
-      const query = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = letters.filter(letter =>
-        letter.title.toLowerCase().includes(query) ||
-        letter.recipient.toLowerCase().includes(query) ||
-        letter.content.toLowerCase().includes(query)
-      );
-      renderLetters(filtered);
-    }
-
-    let letterToDeleteIndex = null; 
-
-    function openDeleteModal(index) {
-      letterToDeleteIndex = index; 
-      document.getElementById('deleteModal').classList.remove('hidden');
-    }
-
-    function closeDeleteModal() {
-      letterToDeleteIndex = null; 
-      document.getElementById('deleteModal').classList.add('hidden');
-    }
-
-    function confirmDelete() {
-      if (letterToDeleteIndex !== null) {
-        letters.splice(letterToDeleteIndex, 1); 
-        renderLetters();
-        closeDeleteModal();
+        `).join('');
       }
-    }
-    
+  
+      function deleteLetter(index) {
+        letters.splice(index, 1);
+        renderLetters();  // Re-render letters after deletion
+      }
+  
+      function searchLetters() {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        const filtered = letters.filter(letter =>
+          letter.title.toLowerCase().includes(query) ||
+          letter.recipient.toLowerCase().includes(query) ||
+          letter.content.toLowerCase().includes(query)
+        );
+        renderLetters(filtered);  // Render filtered letters
+      }
+  
+      let letterToDeleteIndex = null;
+  
+      function openDeleteModal(index) {
+        letterToDeleteIndex = index;
+        document.getElementById('deleteModal').classList.remove('hidden');
+      }
+  
+      function closeDeleteModal() {
+        letterToDeleteIndex = null;
+        document.getElementById('deleteModal').classList.add('hidden');
+      }
+  
+      function confirmDelete() {
+        if (letterToDeleteIndex !== null) {
+          letters.splice(letterToDeleteIndex, 1);
+          renderLetters();  // Re-render letters after confirming deletion
+          closeDeleteModal();
+        }
+      }
+      
   </script>
+  
 </body>
 </html>

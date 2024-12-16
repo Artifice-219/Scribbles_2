@@ -10,9 +10,9 @@ urlpatterns = [
     path('index.html', views.index),
     path('success/', views.success, name = 'success'),
     # path('', views.letter_list, name='letter_list'),
-    path('create/', views.letter_create, name='letter_create'),
+    path('letter_create', views.letter_create, name='letter_create'),
     path('update/<int:pk>/', views.letter_update, name='letter_update'),
-    path('delete/<int:pk>/', views.letter_delete, name='letter_delete'),
+    path('delete-letter/<int:letter_id>/', views.delete_letter, name='letter_delete'),
 ]
 
 

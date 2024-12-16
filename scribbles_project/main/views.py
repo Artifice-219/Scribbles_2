@@ -1,6 +1,10 @@
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse, Http404
 from .forms import UserForm, LetterForm, login_form
 from .models import Letter
 
@@ -31,6 +35,20 @@ def loginpage(request):
 
     return render(request, 'loginpage.html', {'form': form})
 
+def letter_create(request):
+    if request.method == 'POST':
+        form = LetterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            print("Letter saved successfully")
+            return redirect('user-dashboard')
+        else:
+            print("Form errors: ", form.errors)
+    else:
+        form = LetterForm()
+
+    return render(request, 'user-dashboard.html', {'form': form})
+
 
 
 def signup(request):
@@ -46,8 +64,20 @@ def signup(request):
 
 
 # for the dashboard
+@login_required
 def user_dashboard(request):
-    return render(request, 'user-dashboard.html')
+    # fetching user details
+    user = request.user
+    # fetching all the letters in the database
+    letters = Letter.objects.all()
+    dashboard_data = {
+        'user_profile' : {
+            'username' : user.username
+        },
+        'letters':letters
+    }
+    # passing details to the dashboard
+    return render(request, 'user-dashboard.html', {'dashboard_data':dashboard_data, 'letters':letters})
 
 # for the success dialog
 def success(request):
@@ -66,15 +96,9 @@ def letter_list(request):
     return render(request, 'template/DFEDSDFC.html', {'letters': letters})
 
 # Create a new letter
-def letter_create(request):
-    if request.method == "POST":
-        form = LetterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('letter_list')
-    else:
-        form = LetterForm()
-    return render(request, 'template/create.html', {'form': form})
+@login_required
+# views.py
+
 
 # Update an existing letter
 def letter_update(request, pk):
@@ -89,9 +113,13 @@ def letter_update(request, pk):
     return render(request, 'template/create.html', {'form': form})
 
 # Delete a letter
-def letter_delete(request, pk):
-    letter = get_object_or_404(Letter, pk=pk)
-    if request.method == "POST":
+@csrf_exempt
+@require_http_methods(["DELETE"])
+
+def delete_letter(request, letter_id):
+    try:
+        letter = Letter.objects.get(id=letter_id)
         letter.delete()
-        return redirect('letter_list')
-    return render(request, 'template/letter-detail.html', {'letter': letter})
+        return JsonResponse({"message": "Letter deleted successfully"}, status=200)
+    except Letter.DoesNotExist:
+        raise Http404("Letter not found")
