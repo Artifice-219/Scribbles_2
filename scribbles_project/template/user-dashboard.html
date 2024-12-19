@@ -55,6 +55,12 @@
                   <p class="text-gray-400">To: {{ letter.recipient }}</p>
                   <p class="text-gray-300 mt-2">{{ letter.content }}</p>
                   <small class="text-gray-500">Created on {{ letter.created_at|date:"F j, Y" }}</small>
+                  <!-- add the crud things here -->
+                  <button onclick="openCommentsModal('${letters.title}')" class="hover:text-blue-400">💬 Comment</button>
+                  <button onclick="openReplyModal('${letters.title}')" class="hover:text-green-400">🔁 Reply</button> 
+                  <button onclick="openWriteLetterModal('{{ letter.id }}')" class="hover:text-blue-400">✏️ Edit </button>
+                  <button onclick="openDeleteModal('{{ letter.id }}')" class="hover:text-red-400">🗑️ Delete</button>
+                  
               </div>
           {% endfor %}
       {% else %}
@@ -86,37 +92,36 @@
   </div>
 
   <!-- Write/Edit Modal -->
-  <div id="writeLetterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-full">
-      <h2 class="text-2xl font-bold mb-4" id="modalTitle">Write a Letter</h2>
+<div id="writeLetterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center">
+  <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-full">
+    <h2 class="text-2xl font-bold mb-4" id="modalTitle">Write a Letter</h2>
 
-      <!-- <form id="letterForm" method="POST" action="{% url 'letter_create' %}" <-- onsubmit="submitLetter(event)"> -->
-        <form id="letterForm" method="POST" action="{% url 'letter_create' %}">
-          {% csrf_token %}
-          {{ form.as_p }} 
-          <input type="hidden" id="editingIndex" value="">
-          <div class="mb-4">
-            <label class="block mb-2">Title</label>
-            <input type="text" name="title" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" value="{{ form.title.value }}" required>
-          </div>
-          <div class="mb-4">
-            <label class="block mb-2">Recipient</label>
-            <input type="text" name="recipient" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" value="{{ form.recipient.value }}" required>
-          </div>
-          <div class="mb-4">
-            <label class="block mb-2">Content</label>
-            <textarea name="content" rows="4" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" required>{{ form.content.value }}</textarea>
-          </div>
-          <div class="flex gap-2">
-            <button type="button" onclick="closeWriteLetterModal()" class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
-            <div class="ml-auto">
-              <button type="submit" class="bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">Save</button>
-            </div>
-          </div>
-      </form>
-      
-    </div>
+    <form id="letterForm" method="POST" action="{% url 'letter_create' %}">
+      {% csrf_token %}
+      {{ form.as_p }} 
+      <input type="hidden" id="editingIndex" name="id" value="">
+      <div class="mb-4">
+        <label class="block mb-2">Title</label>
+        <input type="text" name="title" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" id="letterTitle" required>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-2">Recipient</label>
+        <input type="text" name="recipient" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" id="letterRecipient" required>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-2">Content</label>
+        <textarea name="content" rows="4" class="w-full p-2 bg-gray-700 text-gray-200 rounded focus:outline-none" id="letterContent" required></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeWriteLetterModal()" class="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
+        <div class="ml-auto">
+          <button type="submit" class="bg-purple-500 px-4 py-2 rounded hover:bg-purple-600" id="submitButton">Save</button>
+        </div>
+      </div>
+    </form>
   </div>
+</div>
+
   
 
   <!-- Comments Modal -->
@@ -210,44 +215,90 @@
         document.getElementById('replyModal').classList.add('hidden');
       }
   
-      function openWriteLetterModal(index = null) {
-        document.getElementById("writeLetterModal").classList.remove("hidden");
-        if (index !== null) {
-          const letter = letters[index];
-          document.getElementById("modalTitle").innerText = "Edit Letter";
+ // Open the modal for editing or creating a new letter
+function openWriteLetterModal(letterId = null) {
+  if (letterId) {
+    fetch(`/get_letter/${letterId}/`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.letter) {
+          const letter = data.letter;
+          // Populate the form with the existing data
+          document.getElementById("modalTitle").textContent = "Edit Letter";
           document.getElementById("letterTitle").value = letter.title;
           document.getElementById("letterRecipient").value = letter.recipient;
           document.getElementById("letterContent").value = letter.content;
-          document.getElementById("editingIndex").value = index;
-        } else {
-          document.getElementById("modalTitle").innerText = "Write a Letter";
-          document.getElementById("letterForm").reset();
-          document.getElementById("editingIndex").value = "";
+          document.getElementById("editingIndex").value = letter.id;
+          document.getElementById("letterForm").action = `/update_letter/${letter.id}/`;
         }
-      }
+      })
+      .catch(error => console.error("Error fetching letter data:", error));
+  } else {
+    // Create mode: Clear the form
+    document.getElementById("modalTitle").textContent = "Write a Letter";
+    document.getElementById("letterTitle").value = "";
+    document.getElementById("letterRecipient").value = "";
+    document.getElementById("letterContent").value = "";
+    document.getElementById("editingIndex").value = "";
+    document.getElementById("letterForm").action = "{% url 'letter_create' %}"; // Set action for creating a new letter
+  }
+
+  // Show the modal
+  document.getElementById("writeLetterModal").style.display = 'flex';
+}
+
+// Close the modal
+function closeWriteLetterModal() {
+  document.getElementById("writeLetterModal").style.display = 'none';
+}
+
   
       function closeWriteLetterModal() {
         document.getElementById("writeLetterModal").classList.add("hidden");
       }
   
       function submitLetter(event) {
-        // event.preventDefault();
-        const title = document.getElementById("letterTitle").value;
-        const recipient = document.getElementById("letterRecipient").value;
-        const content = document.getElementById("letterContent").value;
-        const index = document.getElementById("editingIndex").value;
-  
-        if (index) {
-          letters[index] = { title, recipient, content };
+    event.preventDefault(); 
+
+    const title = document.getElementById("letterTitle").value;
+    const recipient = document.getElementById("letterRecipient").value;
+    const content = document.getElementById("letterContent").value;
+    const index = document.getElementById("editingIndex").value;
+
+    let url = '/letter_create/';
+    let method = 'POST';  
+    let body = JSON.stringify({ title, recipient, content });
+    
+    // if may index na it means already existing na yung record and so we moved on to edit
+    if (index) {
+        url = `/update_letter/${index}/`;
+        method = 'PUT';  // Use PUT for updates
+    }
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: body,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Letter updated successfully" || data.message === "Letter created succesfully") {
+            alert(data.message);
+            renderLetters();  
+            closeWriteLetterModal(); 
         } else {
-          letters.push({ title, recipient, content });
+            alert("Error: " + data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
   
-        renderLetters();  // Ensure letters are rendered after submission
-        closeWriteLetterModal();
-      }
-  
-      function renderLetters(letters) {
+      function renderLetters(filteredLetters = letters) {
         const container = document.getElementById("lettersContainer");
         container.innerHTML = filteredLetters.map((letters, index) => `
           <div class="bg-gray-700 p-4 rounded-lg">
@@ -266,7 +317,7 @@
   
       function deleteLetter(index) {
         letters.splice(index, 1);
-        renderLetters();  // Re-render letters after deletion
+        renderLetters(filtered);  // Re-render letters after deletion
       }
   
       function searchLetters() {
@@ -282,23 +333,53 @@
       let letterToDeleteIndex = null;
   
       function openDeleteModal(index) {
-        letterToDeleteIndex = index;
+        letterToDeleteIndex = index; // from django to make this available on the confirmDelete()
         document.getElementById('deleteModal').classList.remove('hidden');
       }
   
       function closeDeleteModal() {
-        letterToDeleteIndex = null;
+        // letterToDeleteIndex = null;
         document.getElementById('deleteModal').classList.add('hidden');
       }
   
       function confirmDelete() {
-        if (letterToDeleteIndex !== null) {
-          letters.splice(letterToDeleteIndex, 1);
-          renderLetters();  // Re-render letters after confirming deletion
-          closeDeleteModal();
-        }
-      }
-      
+
+    if (!letterToDeleteIndex === null ) {
+        alert("No letter selected for deletion.");
+        return;
+    }
+
+    fetch(`delete-letter/${letterToDeleteIndex}/`, {
+        method: "DELETE",
+        headers: {
+            "X-CSRFToken": getCSRFToken(), // Include CSRF token
+        },
+    })
+        .then((response) => {
+            if (response.ok) {
+                deleteLetter(letterToDeleteIndex);
+                document.getElementById(`letter-${letterToDeleteIndex}`).remove();
+                closeDeleteModal(); // Hide the modal
+                letterToDeleteIndex = null; 
+            } else {
+                return response.json().then((data) => {
+                    throw new Error(data.message || "Failed to delete letter.");
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
+
+// Helper function to get the CSRF token
+function getCSRFToken() {
+    const cookieValue = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+    return cookieValue;
+}
   </script>
   
 </body>

@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse, Http404
 from .forms import UserForm, LetterForm, login_form
 from .models import Letter
-
+import json
 # Create your views here.
 from django.http import HttpResponse
 
@@ -100,17 +100,20 @@ def letter_list(request):
 # views.py
 
 
-# Update an existing letter
-def letter_update(request, pk):
-    letter = get_object_or_404(Letter, pk=pk)
-    if request.method == "POST":
+@csrf_exempt
+def update_letter(request, letter_id):
+    if request.method == 'POST':
+        letter = get_object_or_404(Letter, id=letter_id)
         form = LetterForm(request.POST, instance=letter)
         if form.is_valid():
             form.save()
-            return redirect('letter_list')
-    else:
-        form = LetterForm(instance=letter)
-    return render(request, 'template/create.html', {'form': form})
+            return redirect('user-dashboard')
+        else:
+            return redirect('user-dashboard')
+
+
+
+
 
 # Delete a letter
 @csrf_exempt
@@ -123,3 +126,19 @@ def delete_letter(request, letter_id):
         return JsonResponse({"message": "Letter deleted successfully"}, status=200)
     except Letter.DoesNotExist:
         raise Http404("Letter not found")
+    
+
+
+def get_letter(request, letter_id):
+    try:
+        letter = Letter.objects.get(id=letter_id)
+        data = {
+            'id': letter.id,
+            'title': letter.title,
+            'recipient': letter.recipient,
+            'content': letter.content,
+        }
+        return JsonResponse({'letter': data})
+    except Letter.DoesNotExist:
+        return JsonResponse({"message": "Letter not found"}, status=404)
+
